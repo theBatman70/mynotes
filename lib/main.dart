@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/views/home_view.dart';
+import 'package:mynotes/views/login_view.dart';
 import 'package:mynotes/views/register_view.dart';
+import 'package:mynotes/views/verify_email.dart';
 
 import 'firebase_options.dart';
 
@@ -15,6 +19,12 @@ void main() {
         useMaterial3: true,
       ),
       home: const HomePage(),
+      routes: {
+        loginRoute: (context) => const LoginView(),
+        registerRoute: (context) => const RegisterView(),
+        verifyRoute: (context) => VerifyEmailView(),
+        homeRoute: (context) => const HomeView()
+      },
     ),
   );
 }
@@ -36,11 +46,13 @@ class HomePage extends StatelessWidget {
               print(currentUser);
               if (currentUser == null) {
                 return const RegisterView();
+              } else if (currentUser.emailVerified) {
+                return const HomeView();
               } else {
-                return const Text('Login Successful');
+                return const LoginView();
               }
             default:
-              return const Text('Loading...');
+              return const CircularProgressIndicator();
           }
         },
       ),
