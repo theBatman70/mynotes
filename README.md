@@ -1,6 +1,6 @@
 # mynotes
 
-A new Flutter project.
+A new Flutter project. This app is currently in development.
 
 ## Getting Started
 
