@@ -1,11 +1,20 @@
+import 'package:logger/logger.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 
-class VerifyEmailView extends StatelessWidget {
-  VerifyEmailView({super.key});
+class VerifyEmailView extends StatefulWidget {
+  const VerifyEmailView({super.key});
 
-  final user = FirebaseAuth.instance.currentUser;
+  @override
+  State<VerifyEmailView> createState() => _VerifyEmailViewState();
+}
+
+class _VerifyEmailViewState extends State<VerifyEmailView> {
+  var user = FirebaseAuth.instance.currentUser;
+
+  final logger = Logger();
 
   @override
   Widget build(BuildContext context) {
@@ -20,24 +29,80 @@ class VerifyEmailView extends StatelessWidget {
         centerTitle: true,
         title: const Text("Verify Your Email."),
       ),
-      body: Column(
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 150),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              "Tap the button below to send a verification link to your E-mail address.",
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(
-            height: 50,
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await user?.sendEmailVerification();
-            },
-            child: const Text("Get Verification Link"),
+          Column(
+            children: [
+              const SizedBox(height: 100),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Please check your e-mail for the verification link.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await user?.sendEmailVerification();
+                },
+                child: const Text("Send Again"),
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              const Text('If you have verified your e-mail, you can proceed.'),
+              const SizedBox(
+                height: 50,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    await user?.reload();
+                    user = FirebaseAuth.instance.currentUser;
+                    logger.i(user);
+                    logger.i(user!.emailVerified.toString());
+                    if (mounted) {
+                      if (user?.emailVerified == true) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            Future.delayed(const Duration(seconds: 3), () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  loginRoute, (route) => false);
+                            });
+                            return const AlertDialog(
+                              title: Icon(Icons.check_circle),
+                              content: Text(
+                                'Email is Verified, /n Redirecting you to Login Page',
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Icon(Icons.error),
+                              content: const Text('Email is not yet verified.'),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('OK'))
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Proceed')),
+            ],
           ),
         ],
       ),

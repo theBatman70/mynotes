@@ -1,3 +1,5 @@
+import 'package:logger/logger.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ import 'firebase_options.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
   runApp(
     MaterialApp(
       title: 'Flutter Demo',
@@ -22,7 +25,7 @@ void main() {
       routes: {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
-        verifyRoute: (context) => VerifyEmailView(),
+        verifyRoute: (context) => const VerifyEmailView(),
         homeRoute: (context) => const HomeView()
       },
     ),
@@ -34,6 +37,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var logger = Logger();
     return Scaffold(
       body: FutureBuilder(
         future: Firebase.initializeApp(
@@ -43,13 +47,13 @@ class HomePage extends StatelessWidget {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
               final currentUser = FirebaseAuth.instance.currentUser;
-              print(currentUser);
+              logger.i(currentUser);
               if (currentUser == null) {
                 return const RegisterView();
               } else if (currentUser.emailVerified) {
                 return const HomeView();
               } else {
-                return const LoginView();
+                return const VerifyEmailView();
               }
             default:
               return const CircularProgressIndicator();

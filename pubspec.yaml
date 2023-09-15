@@ -39,6 +39,8 @@ dependencies:
   firebase_auth: ^4.7.3
   cloud_firestore: ^4.8.5
   firebase_analytics: ^10.4.5
+  bootstrap_icons: ^1.8.1
+  logger: ^2.0.2
 
 dev_dependencies:
   flutter_test:

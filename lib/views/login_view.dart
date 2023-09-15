@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/dialog_box.dart';
+import 'dart:developer' show log;
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -63,9 +65,9 @@ class _LoginViewState extends State<LoginView> {
                       final userCredential = await FirebaseAuth.instance
                           .signInWithEmailAndPassword(
                               email: email, password: password);
-                      print(userCredential);
+                      log(userCredential.toString());
                       final user = FirebaseAuth.instance.currentUser;
-                      if (user!.emailVerified) {
+                      if (user?.emailVerified == true) {
                         if (mounted) {
                           Navigator.of(context).pushNamedAndRemoveUntil(
                               homeRoute, (route) => false);
@@ -77,14 +79,23 @@ class _LoginViewState extends State<LoginView> {
                         }
                       }
                     } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        print('User not found.');
-                      } else if (e.code == 'invalid-email') {
-                        print('The given email is invalid. Please check.');
-                      } else if (e.code == 'wrong-password') {
-                        print('The password is wrong for the given account.');
-                      } else if (e.code == 'user-disabled') {
-                        print('Sorry, the user has been disabled.');
+                      if (mounted) {
+                        if (e.code == 'user-not-found') {
+                          await showErrorDialog(context, 'User not found.');
+                        } else if (e.code == 'invalid-email') {
+                          await showErrorDialog(context,
+                              'The given email is invalid. Please check.');
+                        } else if (e.code == 'wrong-password') {
+                          await showErrorDialog(context,
+                              'The password is incorrect for the given account.');
+                        } else if (e.code == 'user-disabled') {
+                          await showErrorDialog(
+                              context, 'Sorry, the user has been disabled.');
+                        }
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        await showErrorDialog(context, e.toString());
                       }
                     }
                   },
@@ -99,7 +110,7 @@ class _LoginViewState extends State<LoginView> {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                             registerRoute, ((route) => false));
                       },
-                      child: const Text('Log In'),
+                      child: const Text('Register'),
                     ),
                   ],
                 )
