@@ -1,8 +1,7 @@
 import 'package:logger/logger.dart';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 
 class VerifyEmailView extends StatefulWidget {
   const VerifyEmailView({super.key});
@@ -12,7 +11,7 @@ class VerifyEmailView extends StatefulWidget {
 }
 
 class _VerifyEmailViewState extends State<VerifyEmailView> {
-  var user = FirebaseAuth.instance.currentUser;
+  var user = AuthService.firebase().currentUser;
 
   final logger = Logger();
 
@@ -45,7 +44,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               ),
               ElevatedButton(
                 onPressed: () async {
-                  await user?.sendEmailVerification();
+                  await AuthService.firebase().sendEmailVerification();
                 },
                 child: const Text("Send Again"),
               ),
@@ -58,12 +57,11 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    await user?.reload();
-                    user = FirebaseAuth.instance.currentUser;
+                    user = AuthService.firebase().currentUser;
                     logger.i(user);
-                    logger.i(user!.emailVerified.toString());
+                    logger.i(user!.isEmailVerified);
                     if (mounted) {
-                      if (user?.emailVerified == true) {
+                      if (user?.isEmailVerified == true) {
                         showDialog(
                           context: context,
                           builder: (context) {

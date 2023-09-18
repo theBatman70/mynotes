@@ -1,8 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_exceptions.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/utilities/dialog_box.dart';
-import 'dart:developer' show log;
+import 'package:logger/logger.dart';
+
+final logger = Logger();
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -61,42 +64,33 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: () async {
                     final email = _email.text;
                     final password = _password.text;
+
                     try {
-                      final userCredential = await FirebaseAuth.instance
-                          .signInWithEmailAndPassword(
-                              email: email, password: password);
-                      log(userCredential.toString());
-                      final user = FirebaseAuth.instance.currentUser;
-                      if (user?.emailVerified == true) {
-                        if (mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              homeRoute, (route) => false);
-                        }
+                      final userCredential = await AuthService.firebase()
+                          .logIn(id: email, password: password);
+                      if (!mounted) return;
+                      logger.i(userCredential.toString());
+                      final user = AuthService.firebase().currentUser;
+                      if (user?.isEmailVerified ?? false) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            homeRoute, (route) => false);
                       } else {
-                        if (mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                              verifyRoute, (route) => false);
-                        }
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            verifyRoute, (route) => false);
                       }
-                    } on FirebaseAuthException catch (e) {
-                      if (mounted) {
-                        if (e.code == 'user-not-found') {
-                          await showErrorDialog(context, 'User not found.');
-                        } else if (e.code == 'invalid-email') {
-                          await showErrorDialog(context,
-                              'The given email is invalid. Please check.');
-                        } else if (e.code == 'wrong-password') {
-                          await showErrorDialog(context,
-                              'The password is incorrect for the given account.');
-                        } else if (e.code == 'user-disabled') {
-                          await showErrorDialog(
-                              context, 'Sorry, the user has been disabled.');
-                        }
-                      }
+                    } on UserNotFoundAuthException {
+                      await showErrorDialog(context, 'User not found.');
+                    } on InvalidEmailAuthException {
+                      await showErrorDialog(
+                          context, 'The given email is invalid. Please check.');
+                    } on WrongPasswordAuthException {
+                      await showErrorDialog(context,
+                          'The password is incorrect for the given account.');
+                    } on UserDisabledAuthException {
+                      await showErrorDialog(
+                          context, 'Sorry, the user has been disabled.');
                     } catch (e) {
-                      if (mounted) {
-                        await showErrorDialog(context, e.toString());
-                      }
+                      await showErrorDialog(context, e.toString());
                     }
                   },
                   child: const Text('Login'),

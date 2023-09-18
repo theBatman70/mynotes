@@ -37,7 +37,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var logger = Logger();
+    final logger = Logger();
     return Scaffold(
       body: FutureBuilder(
         future: Firebase.initializeApp(

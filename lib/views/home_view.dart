@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_service.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -24,7 +24,7 @@ class _HomeViewState extends State<HomeView> {
                         final shouldLogout = await showLogOutDialog(context);
                         if (shouldLogout) {
                           if (mounted) {
-                            FirebaseAuth.instance.signOut();
+                            AuthService.firebase().logOut();
                             Navigator.of(context).pushNamedAndRemoveUntil(
                                 loginRoute, (route) => false);
                           }
