@@ -15,12 +15,12 @@ const createNotesTable = '''CREATE TABLE IF NOT EXISTS "notes" (
 	"user_id"	INTEGER NOT NULL,
 	"text"	TEXT NOT NULL,
 	"is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
-	PRIMARY KEY("id" AUTOINCREMENT),
+	PRIMARY KEY("noteId" AUTOINCREMENT),
 	FOREIGN KEY("user_id") REFERENCES "users"("id")
 );''';
 
 const createUsersTable = '''CREATE TABLE IF NOT EXISTS "users" (
 	"userId"	INTEGER NOT NULL,
 	"email"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("id" AUTOINCREMENT)
+	PRIMARY KEY("userId" AUTOINCREMENT)
 );''';

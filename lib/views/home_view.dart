@@ -34,6 +34,12 @@ class _HomeViewState extends State<HomeView> {
         title: const Text('My Notes'),
         centerTitle: true,
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton(
               itemBuilder: (context) => [
                     PopupMenuItem(
@@ -62,7 +68,11 @@ class _HomeViewState extends State<HomeView> {
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
-                      return const Text("Waiting for all notes...");
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        child: const Text(
+                            "Go create a note! \n\nAll your notes will be shown here."),
+                      );
                     default:
                       return const CircularProgressIndicator();
                   }

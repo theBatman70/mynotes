@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/views/home_view.dart';
 import 'package:mynotes/views/login_view.dart';
+import 'package:mynotes/views/notes/new_note_view.dart';
 import 'package:mynotes/views/register_view.dart';
 import 'package:mynotes/views/verify_email.dart';
 
@@ -26,7 +27,8 @@ void main() {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
         verifyRoute: (context) => const VerifyEmailView(),
-        homeRoute: (context) => const HomeView()
+        homeRoute: (context) => const HomeView(),
+        newNoteRoute: (context) => const NewNoteView(),
       },
     ),
   );

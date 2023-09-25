@@ -54,20 +54,20 @@ class NotesService {
     final db = _getDatabaseOrThrow();
 
     // Check if note exists.
-    await getNote(noteId: note.id);
+    await getNote(noteId: note.noteId);
 
     final updatesCount = await db.update(
       notesTable,
       {textColumn: text, isSyncedWithCloudColumn: 0},
       where: 'noteId = ?',
-      whereArgs: [note.id],
+      whereArgs: [note.noteId],
     );
 
     if (updatesCount == 0) {
       throw CouldNotUpdateNote();
     } else {
-      final updatedNote = await getNote(noteId: note.id);
-      _notes.removeWhere((note) => note.id == updatedNote.id);
+      final updatedNote = await getNote(noteId: note.noteId);
+      _notes.removeWhere((note) => note.noteId == updatedNote.noteId);
       _notes.add(updatedNote);
       _notesStreamController.add(_notes);
       return updatedNote;
@@ -209,7 +209,7 @@ class NotesService {
     }
 
     const text = '';
-    // create the note
+    // insert into the notes table
     final noteId = await db.insert(notesTable, {
       userIdColumn: owner.id,
       textColumn: text,
@@ -217,7 +217,7 @@ class NotesService {
     });
 
     final note = DatabaseNote(
-        id: noteId, userId: owner.id, text: text, isSyncedWithCloud: true);
+        noteId: noteId, userId: owner.id, text: text, isSyncedWithCloud: true);
 
     _notes.add(note);
     _notesStreamController.add(_notes);
@@ -236,7 +236,7 @@ class NotesService {
     if (deleteCount == 0) {
       throw CouldNotDeleteNote();
     } else {
-      _notes.removeWhere((note) => note.id == noteId);
+      _notes.removeWhere((note) => note.noteId == noteId);
       _notesStreamController.add(_notes);
     }
   }
@@ -259,19 +259,19 @@ class DatabaseUser {
 }
 
 class DatabaseNote {
-  final int id;
+  final int noteId;
   final int userId;
   final String text;
   final bool isSyncedWithCloud;
   DatabaseNote({
-    required this.id,
+    required this.noteId,
     required this.userId,
     required this.text,
     required this.isSyncedWithCloud,
   });
 
   DatabaseNote.fromRow(Map<String, Object?> map)
-      : id = map[idColumn] as int,
+      : noteId = map[idColumn] as int,
         userId = map[userIdColumn] as int,
         text = map[textColumn] as String,
         isSyncedWithCloud =
@@ -279,11 +279,11 @@ class DatabaseNote {
 
   @override
   String toString() =>
-      'Note, ID - $id, User ID - $userId, isSyncedWithCloud - $isSyncedWithCloud, text - $text';
+      'Note, ID - $noteId, User ID - $userId, isSyncedWithCloud - $isSyncedWithCloud, text - $text';
 
   @override
-  bool operator ==(covariant DatabaseNote other) => id == other.id;
+  bool operator ==(covariant DatabaseNote other) => noteId == other.noteId;
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => noteId.hashCode;
 }
