@@ -2,9 +2,9 @@
 const dbName = 'notes.db';
 const notesTable = 'notes';
 const usersTable = 'users';
-const idColumn = 'id';
+const noteIdColumn = 'noteId';
 const emailColumn = 'email';
-const userIdColumn = 'user-id';
+const userIdColumn = 'userId';
 const textColumn = 'text';
 const isSyncedWithCloudColumn = 'isSyncedWithCloud';
 
@@ -12,11 +12,11 @@ const isSyncedWithCloudColumn = 'isSyncedWithCloud';
 
 const createNotesTable = '''CREATE TABLE IF NOT EXISTS "notes" (
 	"noteId"	INTEGER NOT NULL,
-	"user_id"	INTEGER NOT NULL,
+	"userId"	INTEGER NOT NULL,
 	"text"	TEXT NOT NULL,
-	"is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
+	"isSyncedWithCloud"	INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY("noteId" AUTOINCREMENT),
-	FOREIGN KEY("user_id") REFERENCES "users"("id")
+	FOREIGN KEY("userId") REFERENCES "users"("userId")
 );''';
 
 const createUsersTable = '''CREATE TABLE IF NOT EXISTS "users" (

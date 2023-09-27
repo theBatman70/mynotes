@@ -12,11 +12,15 @@ class NotesService {
   List<DatabaseNote> _notes = [];
 
   static final NotesService _shared = NotesService._sharedInstance();
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController =
+        StreamController<List<DatabaseNote>>.broadcast(onListen: () {
+      _notesStreamController.sink.add(_notes);
+    });
+  }
   factory NotesService() => _shared;
 
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
@@ -128,6 +132,7 @@ class NotesService {
           await getApplicationDocumentsDirectory(); // get the docs path of the current app
       final dbPath = join(docsPath.path,
           dbName); // connect our db to the docs path of the current app
+
       final db = await openDatabase(dbPath);
       _db = db;
 
@@ -178,7 +183,7 @@ class NotesService {
       },
     );
 
-    return DatabaseUser(id: userId, email: email);
+    return DatabaseUser(userId: userId, email: email);
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
@@ -211,17 +216,19 @@ class NotesService {
     const text = '';
     // insert into the notes table
     final noteId = await db.insert(notesTable, {
-      userIdColumn: owner.id,
+      userIdColumn: owner.userId,
       textColumn: text,
       isSyncedWithCloudColumn: 1,
     });
 
     final note = DatabaseNote(
-        noteId: noteId, userId: owner.id, text: text, isSyncedWithCloud: true);
+        noteId: noteId,
+        userId: owner.userId,
+        text: text,
+        isSyncedWithCloud: true);
 
     _notes.add(note);
     _notesStreamController.add(_notes);
-
     return note;
   }
 
@@ -243,19 +250,27 @@ class NotesService {
 }
 
 class DatabaseUser {
-  final int id;
+  final int userId;
   final String email;
   const DatabaseUser({
-    required this.id,
+    required this.userId,
     required this.email,
   });
 
   DatabaseUser.fromRow(Map<String, Object?> map)
-      : id = map[idColumn] as int,
+      : userId = map[userIdColumn] as int,
         email = map[emailColumn] as String;
 
   @override
-  String toString() => 'User, ID - $id, e-mail - $email';
+  String toString() => 'User, ID - $userId, e-mail - $email';
+
+  @override
+  bool operator ==(covariant DatabaseUser other) {
+    return userId == other.userId;
+  }
+
+  @override
+  int get hashCode => userId.hashCode;
 }
 
 class DatabaseNote {
@@ -271,7 +286,7 @@ class DatabaseNote {
   });
 
   DatabaseNote.fromRow(Map<String, Object?> map)
-      : noteId = map[idColumn] as int,
+      : noteId = map[noteIdColumn] as int,
         userId = map[userIdColumn] as int,
         text = map[textColumn] as String,
         isSyncedWithCloud =
