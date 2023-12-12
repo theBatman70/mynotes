@@ -1,6 +1,6 @@
 # mynotes
 
-A new Flutter project. This app is currently in development. I am taking a full course on flutter taught by senior full-stack engineer Vandad Nahavandipoor. This flutter project is a product where I implement everything I learn with the help of the course.
+This Flutter app is currently in development. I am taking a full course on flutter taught by Senior Full-stack Engineer Vandad Nahavandipoor. This flutter project is a product where I implement everything I learn with the help of the course.
 
 ## Getting Started
 
