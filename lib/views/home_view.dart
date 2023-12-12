@@ -74,12 +74,19 @@ class _HomeViewState extends State<HomeView> {
                             itemCount: allNotes.length,
                             itemBuilder: (context, index) {
                               final note = allNotes[index];
-                              return ListTile(
-                                title: Text(
-                                  note.text,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 3),
+                                child: ListTile(
+                                  title: Text(
+                                    note.text,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  tileColor: Colors.grey,
+                                  shape: BeveledRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6)),
                                 ),
                               );
                             });
