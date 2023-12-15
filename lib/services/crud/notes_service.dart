@@ -13,8 +13,6 @@ class NotesService {
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
-
   NotesService._sharedInstance() {
     _notesStreamController =
         StreamController<List<DatabaseNote>>.broadcast(onListen: () {
@@ -25,6 +23,8 @@ class NotesService {
   static final NotesService _shared = NotesService._sharedInstance();
 
   factory NotesService() => _shared;
+
+  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
   Future<void> _ensureDbIsOpen() async {
     try {

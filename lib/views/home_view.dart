@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
+import 'package:mynotes/utilities/dialog_box/show_logout_dialog.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -38,7 +39,7 @@ class _HomeViewState extends State<HomeView> {
               itemBuilder: (context) => [
                     PopupMenuItem(
                       onTap: () async {
-                        final shouldLogout = await showLogOutDialog(context);
+                        final shouldLogout = await showLogoutDialog(context);
                         if (shouldLogout) {
                           if (mounted) {
                             AuthService.firebase().logOut();
@@ -105,30 +106,4 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
-}
-
-Future<bool> showLogOutDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Log out'),
-      content: const Text('Are you sure you want to log out?'),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(false);
-          },
-          child: const Text(
-            'Cancel',
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
-          child: const Text('Log Out'),
-        )
-      ],
-    ),
-  ).then((value) => value ?? false);
 }
