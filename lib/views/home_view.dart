@@ -3,6 +3,9 @@ import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
 import 'package:mynotes/utilities/dialog_box/show_logout_dialog.dart';
+import 'package:mynotes/views/notes/notes_list_view.dart';
+
+import '../services/crud/models/database_note.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -29,12 +32,6 @@ class _HomeViewState extends State<HomeView> {
         title: const Text('My Notes'),
         centerTitle: true,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(newNoteRoute);
-            },
-            icon: const Icon(Icons.add),
-          ),
           PopupMenuButton(
               itemBuilder: (context) => [
                     PopupMenuItem(
@@ -71,26 +68,12 @@ class _HomeViewState extends State<HomeView> {
                     case ConnectionState.active:
                       if (snapshot.hasData) {
                         final allNotes = snapshot.data as List<DatabaseNote>;
-                        return ListView.builder(
-                            itemCount: allNotes.length,
-                            itemBuilder: (context, index) {
-                              final note = allNotes[index];
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 3),
-                                child: ListTile(
-                                  title: Text(
-                                    note.text,
-                                    maxLines: 1,
-                                    softWrap: true,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  tileColor: Colors.grey,
-                                  shape: BeveledRectangleBorder(
-                                      borderRadius: BorderRadius.circular(6)),
-                                ),
-                              );
-                            });
+                        return NotesListView(
+                          allNotes: allNotes,
+                          onDeleteNote: (note) {
+                            _notesService.deleteNote(noteId: note.noteId);
+                          },
+                        );
                       } else {
                         return const CircularProgressIndicator();
                       }
@@ -103,6 +86,23 @@ class _HomeViewState extends State<HomeView> {
               return const CircularProgressIndicator();
           }
         },
+      ),
+      floatingActionButton: Container(
+        height: 70,
+        width: 70,
+        decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.all(Radius.circular(25))),
+        child: IconButton(
+          icon: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 25,
+          ),
+          onPressed: () {
+            Navigator.of(context).pushNamed(newNoteRoute);
+          },
+        ),
       ),
     );
   }

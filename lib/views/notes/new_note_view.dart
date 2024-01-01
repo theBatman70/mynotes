@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
 
+import '../../services/crud/models/database_note.dart';
+
 class NewNoteView extends StatefulWidget {
   const NewNoteView({super.key});
 
@@ -13,28 +15,43 @@ class _NewNoteViewState extends State<NewNoteView> {
   @override
   void initState() {
     _notesService = NotesService();
-    _textEditingController = TextEditingController();
+    _titleTextEditingController = TextEditingController();
+    _noteTextEditingController = TextEditingController();
     super.initState();
   }
 
   DatabaseNote? _note;
   late final NotesService _notesService;
-  late final TextEditingController _textEditingController;
+  late final TextEditingController _titleTextEditingController;
+  late final TextEditingController _noteTextEditingController;
 
-  void _textControllerListener() {
+  void _titleTextControllerListener() {
     final note = _note;
     if (note == null) {
       return;
     }
-    final text = _textEditingController.text;
-    _notesService.updateNote(note: note, text: text);
+    final title = _titleTextEditingController.text;
+    _notesService.updateNote(note: note, title: title, text: note.text);
+  }
+
+  void _noteTextControllerListener() {
+    final note = _note;
+    if (note == null) {
+      return;
+    }
+    final noteText = _noteTextEditingController.text;
+    _notesService.updateNote(note: note, title: note.title, text: noteText);
   }
 
   void _setupTextControllerListener() {
-    _textEditingController.removeListener(_textControllerListener);
-    _textEditingController.addListener(_textControllerListener);
+    _noteTextEditingController.removeListener(_noteTextControllerListener);
+    _noteTextEditingController.addListener(_noteTextControllerListener);
+
+    _titleTextEditingController.removeListener(_titleTextControllerListener);
+    _titleTextEditingController.addListener(_titleTextControllerListener);
   }
 
+  // Create a blank new note
   Future<DatabaseNote> createNewNote() async {
     final existingNote = _note;
     if (existingNote != null) {
@@ -48,20 +65,30 @@ class _NewNoteViewState extends State<NewNoteView> {
   }
 
   void _deleteNoteIfTextIsEmpty() {
-    final text = _textEditingController.text;
     final note = _note;
 
-    if (text.isEmpty && note != null) {
+    if (_isNoteEmpty() && note != null) {
       _notesService.deleteNote(noteId: note.noteId);
     }
   }
 
-  void _saveNoteIfTextNotEmpty() async {
-    final text = _textEditingController.text;
-    final note = _note;
+  bool _isNoteEmpty() {
+    final title = _titleTextEditingController.text;
+    final noteText = _noteTextEditingController.text;
+    if (title.isEmpty && noteText.isEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-    if (text.isNotEmpty && note != null) {
-      await _notesService.updateNote(note: note, text: text);
+  void _saveNoteIfTextNotEmpty() async {
+    final note = _note;
+    final title = _titleTextEditingController.text;
+    final noteText = _noteTextEditingController.text;
+
+    if (!_isNoteEmpty() && note != null) {
+      await _notesService.updateNote(note: note, title: title, text: noteText);
     }
   }
 
@@ -69,7 +96,8 @@ class _NewNoteViewState extends State<NewNoteView> {
   void dispose() {
     _deleteNoteIfTextIsEmpty();
     _saveNoteIfTextNotEmpty();
-    _textEditingController.dispose();
+    _titleTextEditingController.dispose();
+    _noteTextEditingController.dispose();
     super.dispose();
   }
 
@@ -86,16 +114,32 @@ class _NewNoteViewState extends State<NewNoteView> {
             case ConnectionState.done:
               _note = snapshot.data as DatabaseNote;
               _setupTextControllerListener();
-              return Container(
-                padding: const EdgeInsetsDirectional.all(16),
-                child: TextField(
-                  controller: _textEditingController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                      hintText: "Start typing your note...",
-                      enabledBorder: OutlineInputBorder()),
-                ),
+              return Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsetsDirectional.all(16),
+                    child: TextField(
+                      controller: _titleTextEditingController,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                          hintText: "Title",
+                          hintStyle: TextStyle(fontSize: 16),
+                          enabledBorder: OutlineInputBorder()),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsetsDirectional.all(16),
+                    child: TextField(
+                      controller: _noteTextEditingController,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                          hintText: "Note",
+                          enabledBorder: OutlineInputBorder()),
+                    ),
+                  ),
+                ],
               );
             default:
               return const CircularProgressIndicator();

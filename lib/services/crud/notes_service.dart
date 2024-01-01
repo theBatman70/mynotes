@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart'
     show MissingPlatformDirectoryException, getApplicationDocumentsDirectory;
 import 'package:sqflite/sqflite.dart';
 import 'crud_constants.dart';
+import 'models/database_note.dart';
+import 'models/database_user.dart';
 
 class NotesService {
   Database? _db;
@@ -54,6 +56,7 @@ class NotesService {
 
   Future<DatabaseNote> updateNote({
     required DatabaseNote note,
+    required String title,
     required String text,
   }) async {
     await _ensureDbIsOpen();
@@ -64,7 +67,7 @@ class NotesService {
 
     final updatesCount = await db.update(
       notesTable,
-      {textColumn: text, isSyncedWithCloudColumn: 0},
+      {textColumn: text, titleColumn: title, isSyncedWithCloudColumn: 0},
       where: 'noteId = ?',
       whereArgs: [note.noteId],
     );
@@ -216,16 +219,19 @@ class NotesService {
     }
 
     const text = '';
+    const title = '';
     // insert into the notes table
     final noteId = await db.insert(notesTable, {
       userIdColumn: owner.userId,
       textColumn: text,
+      titleColumn: title,
       isSyncedWithCloudColumn: 1,
     });
 
     final note = DatabaseNote(
         noteId: noteId,
         userId: owner.userId,
+        title: title,
         text: text,
         isSyncedWithCloud: true);
 
@@ -249,58 +255,4 @@ class NotesService {
       _notesStreamController.add(_notes);
     }
   }
-}
-
-class DatabaseUser {
-  final int userId;
-  final String email;
-  const DatabaseUser({
-    required this.userId,
-    required this.email,
-  });
-
-  DatabaseUser.fromRow(Map<String, Object?> map)
-      : userId = map[userIdColumn] as int,
-        email = map[emailColumn] as String;
-
-  @override
-  String toString() => 'User, ID - $userId, e-mail - $email';
-
-  @override
-  bool operator ==(covariant DatabaseUser other) {
-    return userId == other.userId;
-  }
-
-  @override
-  int get hashCode => userId.hashCode;
-}
-
-class DatabaseNote {
-  final int noteId;
-  final int userId;
-  final String text;
-  final bool isSyncedWithCloud;
-  DatabaseNote({
-    required this.noteId,
-    required this.userId,
-    required this.text,
-    required this.isSyncedWithCloud,
-  });
-
-  DatabaseNote.fromRow(Map<String, Object?> map)
-      : noteId = map[noteIdColumn] as int,
-        userId = map[userIdColumn] as int,
-        text = map[textColumn] as String,
-        isSyncedWithCloud =
-            (map[isSyncedWithCloudColumn] as int) == 0 ? false : true;
-
-  @override
-  String toString() =>
-      'Note, ID - $noteId, User ID - $userId, isSyncedWithCloud - $isSyncedWithCloud, text - $text';
-
-  @override
-  bool operator ==(covariant DatabaseNote other) => noteId == other.noteId;
-
-  @override
-  int get hashCode => noteId.hashCode;
 }
