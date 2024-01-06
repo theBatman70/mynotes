@@ -4,11 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/providers/selection_mode.dart';
 import 'package:mynotes/views/home_view.dart';
-import 'package:mynotes/views/login_view.dart';
 import 'package:mynotes/views/notes/new_note_view.dart';
-import 'package:mynotes/views/register_view.dart';
-import 'package:mynotes/views/verify_email.dart';
+import 'package:mynotes/views/sign_in_view/login_view.dart';
+import 'package:mynotes/views/sign_in_view/register_view.dart';
+import 'package:mynotes/views/sign_in_view/verify_email.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 
@@ -40,28 +42,28 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logger = Logger();
-    return Scaffold(
-      body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              final currentUser = FirebaseAuth.instance.currentUser;
-              logger.i(currentUser);
-              if (currentUser == null) {
-                return const RegisterView();
-              } else if (currentUser.emailVerified) {
-                return const HomeView();
-              } else {
-                return const VerifyEmailView();
-              }
-            default:
-              return const CircularProgressIndicator();
-          }
-        },
+    return FutureBuilder(
+      future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
       ),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            final currentUser = FirebaseAuth.instance.currentUser;
+            logger.i(currentUser);
+            if (currentUser == null) {
+              return const RegisterView();
+            } else if (currentUser.emailVerified) {
+              return ChangeNotifierProvider(
+                  create: (context) => SelectionModeModel(),
+                  child: const HomeView());
+            } else {
+              return const VerifyEmailView();
+            }
+          default:
+            return const CircularProgressIndicator();
+        }
+      },
     );
   }
 }

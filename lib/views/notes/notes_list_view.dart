@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mynotes/providers/selection_mode.dart';
 import 'package:mynotes/utilities/dialog_box/show_delete_dialog.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:provider/provider.dart';
 
 import '../../services/crud/models/database_note.dart';
 
@@ -7,12 +10,10 @@ typedef DeleteNoteCallBack = void Function(DatabaseNote note);
 
 class NotesListView extends StatefulWidget {
   final List<DatabaseNote> allNotes;
-  final DeleteNoteCallBack onDeleteNote;
 
   const NotesListView({
     super.key,
     required this.allNotes,
-    required this.onDeleteNote,
   });
 
   @override
@@ -22,41 +23,58 @@ class NotesListView extends StatefulWidget {
 class _NotesListViewState extends State<NotesListView> {
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
+    return MasonryGridView.builder(
       itemCount: widget.allNotes.length,
       itemBuilder: (context, index) {
         final note = widget.allNotes[index];
-        return Dismissible(
-          key: Key(note.noteId.toString()),
-          onDismissed: (direction) async {
-            final shouldDelete = await showDeleteDialog(context);
-            shouldDelete
-                ? widget.onDeleteNote(note)
-                : widget.allNotes.insert(index, note);
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-            child: ListTile(
-              title: Text(
-                note.title,
-                maxLines: 1,
-                softWrap: true,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                note.text,
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-              ),
-              tileColor: Colors.grey,
-              shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
-            ),
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Consumer<SelectionModeModel>(
+            builder: (BuildContext context, SelectionModeModel provider,
+                Widget? child) {
+              return ListTile(
+                title: note.title != ''
+                    ? Text(
+                        note.title,
+                        maxLines: 1,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : null,
+                subtitle: Text(
+                  note.text,
+                  softWrap: true,
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                tileColor: Colors.grey.shade500,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                selectedTileColor: Colors.amber.shade100,
+                selected: provider.selectionMode
+                    ? provider.isSelected(note.noteId)
+                    : false,
+                onLongPress: () {
+                  !provider.selectionMode
+                      ? provider.turnOnSelectionMode()
+                      : null;
+                  provider.toggleSelection(note.noteId);
+                },
+                onTap: () {
+                  if (provider.selectionMode) {
+                    provider.toggleSelection(note.noteId);
+                  }
+                },
+              );
+            },
           ),
         );
       },
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8),
+      gridDelegate: const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
     );
   }
 }

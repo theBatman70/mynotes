@@ -68,7 +68,7 @@ class _NewNoteViewState extends State<NewNoteView> {
     final note = _note;
 
     if (_isNoteEmpty() && note != null) {
-      _notesService.deleteNote(noteId: note.noteId);
+      _notesService.deleteNote(noteIDs: [note.noteId]);
     }
   }
 
@@ -117,26 +117,31 @@ class _NewNoteViewState extends State<NewNoteView> {
               return Column(
                 children: [
                   Container(
-                    padding: const EdgeInsetsDirectional.all(16),
+                    margin:
+                        const EdgeInsetsDirectional.only(start: 30, end: 10),
                     child: TextField(
                       controller: _titleTextEditingController,
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       decoration: const InputDecoration(
-                          hintText: "Title",
-                          hintStyle: TextStyle(fontSize: 16),
-                          enabledBorder: OutlineInputBorder()),
+                        hintText: "Title",
+                        hintStyle: TextStyle(fontSize: 25, color: Colors.black),
+                        enabledBorder: InputBorder.none,
+                      ),
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsetsDirectional.all(16),
+                    margin:
+                        const EdgeInsetsDirectional.only(start: 30, end: 10),
                     child: TextField(
                       controller: _noteTextEditingController,
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       decoration: const InputDecoration(
                           hintText: "Note",
-                          enabledBorder: OutlineInputBorder()),
+                          hintStyle: TextStyle(fontSize: 19),
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none),
                     ),
                   ),
                 ],

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart'
@@ -138,12 +139,31 @@ class NotesService {
       final dbPath = join(docsPath.path,
           dbName); // connect our db to the docs path of the current app
 
-      final db = await openDatabase(dbPath);
-      _db = db;
+      final db = await openDatabase(
+        dbPath,
+        version: 5,
+        onCreate: (db, version) async {
+          await db.execute(createUsersTable);
+          await db.execute(createNotesTable);
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < newVersion) {
+            // Create a temporary table with the new schema
+            await db.execute(createTempNotesTableUpgraded);
 
-      // Create if tables don't exist already
-      await db.execute(createUsersTable);
-      await db.execute(createNotesTable);
+            // Copy data from the old table to the temporary table
+            await db.execute(insertOldNotesToNewTemp);
+
+            // Drop the old table
+            await db.execute(dropNotesTable);
+
+            // Rename the temporary table to the original table name
+            await db.execute(renameNotesTempToNotes);
+          }
+        },
+      );
+      _db = db;
+      print(dbPath);
 
       // Cache the Notes
       await _cacheNotes();
@@ -240,18 +260,20 @@ class NotesService {
     return note;
   }
 
-  Future<void> deleteNote({required int noteId}) async {
+  Future<void> deleteNote({required List<int> noteIDs}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final deleteCount = await db.delete(
       notesTable,
-      where: 'noteId = ?',
-      whereArgs: [noteId],
+      where: 'noteId IN (${noteIDs.map((_) => '?').join(', ')})',
+      whereArgs: noteIDs,
     );
     if (deleteCount == 0) {
       throw CouldNotDeleteNote();
     } else {
-      _notes.removeWhere((note) => note.noteId == noteId);
+      for (var noteID in noteIDs) {
+        _notes.removeWhere((note) => note.noteId == noteID);
+      }
       _notesStreamController.add(_notes);
     }
   }
