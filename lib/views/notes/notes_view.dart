@@ -3,11 +3,12 @@ import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/providers/selection_mode.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
+import 'package:mynotes/utilities/dialog_box/show_delete_dialog.dart';
 import 'package:mynotes/utilities/dialog_box/show_logout_dialog.dart';
 import 'package:mynotes/views/notes/notes_list_view.dart';
 import 'package:provider/provider.dart';
 
-import '../services/crud/models/database_note.dart';
+import '../../services/crud/models/database_note.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -44,10 +45,13 @@ class _HomeViewState extends State<HomeView> {
                   children: [
                     IconButton(
                         onPressed: () async {
-                          await _notesService.deleteNote(
-                              noteIDs: provider
-                                  .selectedNoteIDs); // Delete in NotesService
-                          provider.turnOffSelectionMode();
+                          final shouldDelete = await showDeleteDialog(context);
+                          if (shouldDelete) {
+                            await _notesService.deleteNote(
+                                noteIDs: provider
+                                    .selectedNoteIDs); // Delete in NotesService
+                            provider.turnOffSelectionMode();
+                          }
                         },
                         icon: const Icon(Icons.delete)),
                     IconButton(
@@ -96,6 +100,11 @@ class _HomeViewState extends State<HomeView> {
                           final allNotes = snapshot.data as List<DatabaseNote>;
                           return NotesListView(
                             allNotes: allNotes,
+                            onTap: (DatabaseNote note) {
+                              Navigator.of(context).pushNamed(
+                                  createUpdateNoteRoute,
+                                  arguments: note);
+                            },
                           );
                         } else {
                           return const CircularProgressIndicator();
@@ -124,7 +133,7 @@ class _HomeViewState extends State<HomeView> {
             size: 25,
           ),
           onPressed: () {
-            Navigator.of(context).pushNamed(newNoteRoute);
+            Navigator.of(context).pushNamed(createUpdateNoteRoute);
           },
         ),
       ),

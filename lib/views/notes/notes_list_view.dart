@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:mynotes/providers/selection_mode.dart';
-import 'package:mynotes/utilities/dialog_box/show_delete_dialog.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/crud/models/database_note.dart';
 
-typedef DeleteNoteCallBack = void Function(DatabaseNote note);
+typedef NoteCallBack = void Function(DatabaseNote note);
 
 class NotesListView extends StatefulWidget {
   final List<DatabaseNote> allNotes;
+  final NoteCallBack onTap;
 
   const NotesListView({
     super.key,
     required this.allNotes,
+    required this.onTap,
   });
 
   @override
@@ -26,7 +27,8 @@ class _NotesListViewState extends State<NotesListView> {
     return MasonryGridView.builder(
       itemCount: widget.allNotes.length,
       itemBuilder: (context, index) {
-        final note = widget.allNotes[index];
+        final length = widget.allNotes.length;
+        final note = widget.allNotes[length - index - 1];
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: Consumer<SelectionModeModel>(
@@ -65,6 +67,8 @@ class _NotesListViewState extends State<NotesListView> {
                 onTap: () {
                   if (provider.selectionMode) {
                     provider.toggleSelection(note.noteId);
+                  } else {
+                    widget.onTap(note);
                   }
                 },
               );

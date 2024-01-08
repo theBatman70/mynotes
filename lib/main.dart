@@ -5,8 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/providers/selection_mode.dart';
-import 'package:mynotes/views/home_view.dart';
-import 'package:mynotes/views/notes/new_note_view.dart';
+import 'package:mynotes/views/notes/notes_view.dart';
+import 'package:mynotes/views/notes/create_update_note_view.dart';
 import 'package:mynotes/views/sign_in_view/login_view.dart';
 import 'package:mynotes/views/sign_in_view/register_view.dart';
 import 'package:mynotes/views/sign_in_view/verify_email.dart';
@@ -30,7 +30,7 @@ void main() {
         registerRoute: (context) => const RegisterView(),
         verifyRoute: (context) => const VerifyEmailView(),
         homeRoute: (context) => const HomeView(),
-        newNoteRoute: (context) => const NewNoteView(),
+        createUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
       },
     ),
   );

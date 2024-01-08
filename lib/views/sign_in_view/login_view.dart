@@ -54,6 +54,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 TextField(
                   controller: _password,
+                  keyboardType: TextInputType.visiblePassword,
                   decoration:
                       const InputDecoration(hintText: 'Enter your password'),
                   obscureText: true,
