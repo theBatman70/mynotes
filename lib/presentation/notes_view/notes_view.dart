@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/routes/routes.dart';
 import 'package:mynotes/providers/selection_mode.dart';
 import 'package:mynotes/services/auth/auth_service.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
 import 'package:mynotes/utilities/dialog_box/show_delete_dialog.dart';
 import 'package:mynotes/utilities/dialog_box/show_logout_dialog.dart';
-import 'package:mynotes/views/notes/notes_list_view.dart';
+import 'package:mynotes/presentation/notes_view/notes_list_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/crud/models/database_note.dart';
