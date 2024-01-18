@@ -24,20 +24,20 @@ void main() {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const MyApp(),
       routes: {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
         verifyRoute: (context) => const VerifyEmailView(),
-        homeRoute: (context) => const HomeView(),
+        homeRoute: (context) => const NotesView(),
         createUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
       },
     ),
   );
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
             } else if (currentUser.emailVerified) {
               return ChangeNotifierProvider(
                   create: (context) => SelectionModeModel(),
-                  child: const HomeView());
+                  child: const NotesView());
             } else {
               return const VerifyEmailView();
             }

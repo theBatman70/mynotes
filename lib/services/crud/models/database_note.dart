@@ -14,6 +14,7 @@ class DatabaseNote {
     required this.isSyncedWithCloud,
   });
 
+  // Turn a row from the Database into our instance type
   DatabaseNote.fromRow(Map<String, Object?> map)
       : noteId = map[noteIdColumn] as int,
         userId = map[userIdColumn] as int,

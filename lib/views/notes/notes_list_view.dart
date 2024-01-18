@@ -41,6 +41,8 @@ class _NotesListViewState extends State<NotesListView> {
                         maxLines: 1,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
                       )
                     : null,
                 subtitle: Text(
@@ -48,6 +50,7 @@ class _NotesListViewState extends State<NotesListView> {
                   softWrap: true,
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 14),
                 ),
                 tileColor: Colors.grey.shade500,
                 contentPadding:

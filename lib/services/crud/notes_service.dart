@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
+import 'package:mynotes/utilities/extensions/filter_stream.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart'
     show MissingPlatformDirectoryException, getApplicationDocumentsDirectory;
@@ -12,6 +12,7 @@ import 'models/database_user.dart';
 
 class NotesService {
   Database? _db;
+  late DatabaseUser _user;
   List<DatabaseNote> _notes = [];
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
@@ -27,7 +28,10 @@ class NotesService {
 
   factory NotesService() => _shared;
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        return note.userId == _user.userId;
+      });
 
   Future<void> _ensureDbIsOpen() async {
     try {
@@ -37,24 +41,29 @@ class NotesService {
     }
   }
 
+  // Get User from the Database or Create one in it if not found.
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
       final user = await getUser(email: email);
+      _user = user;
       return user;
     } on UserDoesNotExist {
       final createdUser = await createUser(email: email);
+      _user = createdUser;
       return createdUser;
     } catch (e) {
       rethrow;
     }
   }
 
+  // Add the notes from the Database to our instance variable and StreamController
   Future<void> _cacheNotes() async {
     final allNotes = await getAllNotes();
     _notes = allNotes.toList();
     _notesStreamController.add(_notes);
   }
 
+  // Update the given note in the Database
   Future<DatabaseNote> updateNote({
     required DatabaseNote note,
     required String title,
@@ -84,6 +93,7 @@ class NotesService {
     }
   }
 
+  // Fetch the notes from the Database
   Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();

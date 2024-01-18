@@ -33,7 +33,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text("Register")),
+        title: const Center(child: Text("Hello!")),
       ),
       body: Column(
         children: [

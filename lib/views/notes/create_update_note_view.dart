@@ -27,6 +27,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
   late final TextEditingController _noteTextEditingController;
   late final String title;
 
+  // Take the content of Controllers then, update the note in NotesService & DB.
   void _titleTextControllerListener() {
     final note = _note;
     final title = _titleTextEditingController.text;
@@ -39,6 +40,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     _notesService.updateNote(note: note, title: note.title, text: noteText);
   }
 
+  // Add the listeners to the TextEditingControllers
   void _setupTextControllerListener() {
     _noteTextEditingController.removeListener(_noteTextControllerListener);
     _noteTextEditingController.addListener(_noteTextControllerListener);
@@ -119,6 +121,10 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
                     margin:
                         const EdgeInsetsDirectional.only(start: 30, end: 10),
                     child: TextField(
+                      style: const TextStyle(
+                          fontSize: 25,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
                       controller: _titleTextEditingController,
                       keyboardType: TextInputType.multiline,
                       maxLines: null,

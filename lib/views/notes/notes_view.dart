@@ -10,14 +10,14 @@ import 'package:provider/provider.dart';
 
 import '../../services/crud/models/database_note.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class NotesView extends StatefulWidget {
+  const NotesView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<NotesView> createState() => _NotesViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _NotesViewState extends State<NotesView> {
   late final NotesService _notesService;
   String get userEmail => AuthService.firebase().currentUser!.email!;
 
