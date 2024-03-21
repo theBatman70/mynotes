@@ -13,7 +13,7 @@ const isSyncedWithCloudColumn = 'isSyncedWithCloud';
 
 const createNotesTable = '''CREATE TABLE IF NOT EXISTS "notes" (
 	"noteId"	INTEGER NOT NULL,
-	"userId"	INTEGER NOT NULL,
+	"userId"	TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT '',
 	"text"	TEXT NOT NULL DEFAULT '',
 	"isSyncedWithCloud"	INTEGER NOT NULL DEFAULT 0,
@@ -22,15 +22,14 @@ const createNotesTable = '''CREATE TABLE IF NOT EXISTS "notes" (
 );''';
 
 const createUsersTable = '''CREATE TABLE IF NOT EXISTS "users" (
-	"userId"	INTEGER NOT NULL,
-	"email"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("userId" AUTOINCREMENT)
+	"userId"	TEXT NOT NULL,
+	PRIMARY KEY("userId")
 );''';
 
 const createTempNotesTableUpgraded =
     '''CREATE TABLE IF NOT EXISTS "notes_temp" (
 	"noteId"	INTEGER NOT NULL,
-	"userId"	INTEGER NOT NULL,
+	"userId"	TEXT NOT NULL,
   "title" TEXT NOT NULL DEFAULT '',
 	"text"	TEXT NOT NULL DEFAULT '',
 	"isSyncedWithCloud"	INTEGER NOT NULL DEFAULT 0,

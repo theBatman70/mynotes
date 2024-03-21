@@ -1,0 +1,11 @@
+flutter_native_splash:
+  image: assets\images\my_notes_logo-white-outlined-black_bg.jpg
+  color: "#000000"
+
+  android_12:
+    image: assets\images\my_notes_logo-white-outlined-black_bg.jpg
+    color: "#000000"
+
+  android: true
+  ios: true
+  web: true

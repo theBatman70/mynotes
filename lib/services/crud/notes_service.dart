@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
 import 'package:mynotes/utilities/extensions/filter_stream.dart';
 import 'package:path/path.dart' show join;
@@ -42,13 +43,13 @@ class NotesService {
   }
 
   // Get User from the Database or Create one in it if not found.
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({required String id}) async {
     try {
-      final user = await getUser(email: email);
+      final user = await getUser(id: id);
       _user = user;
       return user;
     } on UserDoesNotExist {
-      final createdUser = await createUser(email: email);
+      final createdUser = await createUser(id: id);
       _user = createdUser;
       return createdUser;
     } catch (e) {
@@ -173,7 +174,7 @@ class NotesService {
         },
       );
       _db = db;
-      print(dbPath);
+      debugPrint(dbPath);
 
       // Cache the Notes
       await _cacheNotes();
@@ -197,15 +198,14 @@ class NotesService {
     }
   }
 
-  Future<DatabaseUser> createUser({required String email}) async {
+  Future<DatabaseUser> createUser({required String id}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
-    // Check if given email already exists.
+    // Check if given ID already exists.
     final results = await db.query(
       usersTable,
       limit: 1,
-      where: 'email = ?',
-      whereArgs: [email.toLowerCase()],
+      where: 'userId = ?',
     );
     if (results.isNotEmpty) {
       throw UserAlreadyExists();
@@ -214,22 +214,25 @@ class NotesService {
     final userId = await db.insert(
       usersTable,
       {
-        emailColumn: email.toLowerCase(),
+        userIdColumn: id,
       },
     );
 
-    return DatabaseUser(userId: userId, email: email);
+    if (userId != 0) {
+      return DatabaseUser(userId: id);
+    }
+
+    throw CouldNotCreateUser();
   }
 
-  Future<DatabaseUser> getUser({required String email}) async {
+  Future<DatabaseUser> getUser({required String id}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     // Check if given email exists.
     final results = await db.query(
       usersTable,
       limit: 1,
-      where: 'email = ?',
-      whereArgs: [email.toLowerCase()],
+      where: 'userId = ?',
     );
     if (results.isEmpty) {
       throw UserDoesNotExist();
@@ -243,7 +246,7 @@ class NotesService {
     final db = _getDatabaseOrThrow();
 
     // Make sure owner exists in the database with the correct id
-    final dbUser = await getUser(email: owner.email);
+    final dbUser = await getUser(id: owner.userId);
     if (dbUser != owner) {
       throw UserDoesNotExist();
     }

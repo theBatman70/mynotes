@@ -1,19 +1,16 @@
 import 'package:mynotes/services/crud/crud_constants.dart';
 
 class DatabaseUser {
-  final int userId;
-  final String email;
+  final String userId;
   const DatabaseUser({
     required this.userId,
-    required this.email,
   });
 
   DatabaseUser.fromRow(Map<String, Object?> map)
-      : userId = map[userIdColumn] as int,
-        email = map[emailColumn] as String;
+      : userId = map[userIdColumn] as String;
 
   @override
-  String toString() => 'User, ID - $userId, e-mail - $email';
+  String toString() => 'User, ID - $userId';
 
   @override
   bool operator ==(covariant DatabaseUser other) {
