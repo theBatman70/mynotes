@@ -7,10 +7,10 @@ import 'package:mynotes/services/crud/notes_service.dart';
 import 'package:mynotes/features/note/presentation/notes_list_view.dart';
 import 'package:mynotes/utilities/widgets/dialog_box/show_delete_dialog.dart';
 import 'package:mynotes/utilities/widgets/dialog_box/show_logout_dialog.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+// import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:mynotes/services/crud/models/database_note.dart';
+import 'package:provider/provider.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
