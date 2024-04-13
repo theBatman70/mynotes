@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mynotes/features/user_authentication/auth/auth_exceptions.dart';
 import 'package:mynotes/features/user_authentication/auth/firebase_auth_service.dart';
@@ -6,11 +9,14 @@ import 'package:mynotes/features/user_authentication/auth/users/anon_user.dart';
 import 'package:mynotes/features/user_authentication/auth/users/app_user.dart';
 import 'package:mynotes/features/user_authentication/auth/users/email_auth_user.dart';
 import 'package:mynotes/features/user_authentication/auth/users/google_auth_user.dart';
+import 'package:mynotes/utils/helper/name_helper.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  Timer? emailVerificationTimer;
+
   AuthBloc(FirebaseAuthService service) : super(const AuthStateLoading()) {
     on<AuthEventInitialize>((event, emit) async {
       await service.initialize();
@@ -23,8 +29,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           } else {
             return emit(EmailNeedsVerification(currentAppUser));
           }
+        } else if (currentAppUser is GoogleAuthUser) {
+          return emit(GoogleUserLoggedIn(currentAppUser));
+        } else if (currentAppUser is AnonUser) {
+          return emit(AnonUserLoggedIn(currentAppUser));
         }
-        return emit(AuthStateLoggedIn(currentAppUser));
       } else if (currentAppUser == null) {
         return emit(const AuthStateLoggedOut());
       }
@@ -34,13 +43,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthStateLoading());
       await service.signInWithGoogle();
       final currentAppUser = service.currentAppUser as GoogleAuthUser?;
+      emit(const AuthStateLoadingDone());
 
       if (currentAppUser != null) {
-        emit(const AuthStateLoadingDone());
         return emit(GoogleUserLoggedIn(currentAppUser));
       } else {
         /* User cancelled the sign-in process */
-        return;
+        return emit(const AuthStateLoggedOut());
       }
     });
     on<LoginAnonymously>((event, emit) async {
@@ -60,11 +69,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthStateLoading());
       String? message;
       try {
-        final currentAppUser = await service.logInWithEmail(
-            email: event.email, password: event.password);
+        final EmailAuthUser? emailAuthUser = await service.logInWithEmail(
+            email: event.email, password: event.password) as EmailAuthUser?;
         emit(const AuthStateLoadingDone());
-        if (currentAppUser != null) {
-          return emit(EmailUserLoggedIn(currentAppUser as EmailAuthUser));
+        if (emailAuthUser != null) {
+          if (!emailAuthUser.isVerified) {
+            return emit(EmailNeedsVerification(emailAuthUser));
+          }
+          return emit(EmailUserLoggedIn(emailAuthUser));
         }
       } on Exception catch (e) {
         if (e is UserNotFoundAuthException) {
@@ -89,9 +101,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       String? message;
       try {
         emit(const AuthStateLoading());
-        await service.createEmailUser(
-            email: event.email, password: event.password);
-        return emit(const EmailUserCreated());
+        final name = compileName(event.firstName, event.lastName);
+        final emailUser = await service.createEmailUser(
+            email: event.email, password: event.password, name: name);
+        emit(const AuthStateLoadingDone());
+        emit(const EmailUserCreated());
+        return emit(EmailNeedsVerification(emailUser));
       } on Exception catch (e) {
         if (e is EmailAlreadyInUseAuthException) {
           message = 'This email is already in use.';
@@ -102,24 +117,69 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else {
           message = e.toString();
         }
-        emit(AuthFailure(e, message));
+        emit(const AuthStateLoadingDone());
+        return emit(AuthFailure(e, message));
       }
     });
-    on<SendUserEmailVerification>((event, emit) async {
-      emit(const AuthStateLoading());
+
+    on<UpdateName>((event, emit) async {
       try {
-        await service.sendEmailVerification();
+        await service.currentFirebaseUser?.updateDisplayName(event.name);
+        await service.currentFirebaseUser?.reload();
+        final user = service.updateAppUser();
+        if (user != null) {
+          emit(AnonUserLoggedIn(user as AnonUser));
+        } else {
+          debugPrint("Name not updated");
+        }
       } on Exception catch (e) {
-        return emit(AuthFailure(e, 'Email Verification not sent.'));
+        emit(AuthFailure(e, e.toString()));
       }
-      return emit(EmailVerificationSent(event.user));
+    });
+
+    on<SendUserEmailVerification>((event, emit) async {
+      var completer = Completer();
+      await service.sendEmailVerification();
+      debugPrint('Sent Email Verification.');
+
+      final EmailAuthUser emailAuthUser =
+          service.currentAppUser as EmailAuthUser;
+      emailVerificationTimer =
+          Timer.periodic(const Duration(seconds: 2), (Timer t) async {
+        final User? user = service.currentFirebaseUser;
+        if (user != null) {
+          await user.reload();
+          final isEmailVerified = user.emailVerified;
+          if (isEmailVerified) {
+            t.cancel();
+            debugPrint("Email has been verified!");
+            emailAuthUser.isVerified = true;
+            emit(EmailUserLoggedIn(emailAuthUser));
+            completer.complete();
+          } else {
+            debugPrint('Not Verified Yet.');
+          }
+        } else {
+          t.cancel();
+          completer.completeError(UserNotFoundAuthException());
+        }
+      });
+      return completer.future;
+    });
+
+    on<CancelEmailVerification>((event, emit) async {
+      emailVerificationTimer?.cancel();
+      debugPrint('Stopped Email Verification Listener');
     });
     on<AuthEventLogout>((event, emit) async {
       emit(const AuthStateLoading());
       try {
         await service.logOut();
+        debugPrint('reached Logout event');
+        emit(const AuthStateLoadingDone());
         return emit(const AuthStateLoggedOut());
       } on Exception catch (e) {
+        emit(const AuthStateLoadingDone());
         return emit(AuthStateLogOutFailure(e));
       }
     });

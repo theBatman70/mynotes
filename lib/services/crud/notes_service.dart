@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:mynotes/services/crud/crud_exceptions.dart';
-import 'package:mynotes/utilities/extensions/filter_stream.dart';
+import 'package:mynotes/utils/extensions/filter_stream.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart'
     show MissingPlatformDirectoryException, getApplicationDocumentsDirectory;
@@ -226,13 +226,15 @@ class NotesService {
   }
 
   Future<DatabaseUser> getUser({required String id}) async {
+
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
-    // Check if given email exists.
+    // Check if given id exists.
     final results = await db.query(
       usersTable,
       limit: 1,
       where: 'userId = ?',
+      whereArgs: [id]
     );
     if (results.isEmpty) {
       throw UserDoesNotExist();

@@ -28,6 +28,8 @@ class FirebaseAuthService {
 
   User? get currentFirebaseUser => FirebaseAuth.instance.currentUser;
 
+  Stream<User?> get idTokenChanges => FirebaseAuth.instance.idTokenChanges();
+
   Future<AppUser?> signInWithGoogle() async {
     await GoogleSignInProvider().signInWithGoogle();
     return updateAppUser();
@@ -43,10 +45,13 @@ class FirebaseAuthService {
     await EmailAuthProvider().sendEmailVerification(currentFirebaseUser);
   }
 
-  Future<void> createEmailUser(
-      {required String email, required String password}) async {
-    await EmailAuthProvider()
+  Future<EmailAuthUser> createEmailUser(
+      {required String email, required String password, required name}) async {
+    final user = await EmailAuthProvider()
         .createUserWithEmail(email: email, password: password);
+    await user.updateDisplayName(name);
+    await user.reload();
+    return updateAppUser() as EmailAuthUser;
   }
 
   Future<AppUser?> logInAnonymously() async {
@@ -64,9 +69,15 @@ class FirebaseAuthService {
 
   AppUser? updateAppUser() {
     debugPrint('reached updateApp User before process');
-    debugPrint('providerData is => ${currentFirebaseUser!.providerData}');
+    if (currentFirebaseUser == null) {
+      _currentAppUser = null;
+      return null;
+    }
     if (currentFirebaseUser != null) {
-      final providerId = currentFirebaseUser!.providerData.isNotEmpty ? currentFirebaseUser!.providerData.first.providerId : null;
+      debugPrint('providerData is => ${currentFirebaseUser!.providerData}');
+      final providerId = currentFirebaseUser!.providerData.isNotEmpty
+          ? currentFirebaseUser!.providerData.first.providerId
+          : null;
       if (providerId == null) {
         _currentAppUser = AnonUser.fromFirebase(currentFirebaseUser!);
       } else if (providerId == 'password') {

@@ -8,7 +8,7 @@ Future<void> showErrorDialog(
 ) {
   return showGenericDialog(
       context: context,
-      title: 'An Error Occurred',
+      icon: const Icon(Icons.error),
       content: content,
       options: {'OK': null});
 }

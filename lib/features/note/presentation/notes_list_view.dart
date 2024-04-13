@@ -32,44 +32,45 @@ class _NotesListViewState extends State<NotesListView> {
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: Consumer<SelectionMode>(
-            builder: (BuildContext context, SelectionMode provider,
-                Widget? child) {
+            builder:
+                (BuildContext context, SelectionMode selectionState, Widget? child) {
               return ListTile(
                 title: note.title != ''
-                    ? Text(
-                        note.title,
-                        maxLines: 1,
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500),
-                      )
+                    ? Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Text(note.title,
+                          maxLines: 3,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.headlineMedium),
+                    )
                     : null,
                 subtitle: Text(
                   note.text,
                   softWrap: true,
-                  maxLines: 5,
+                  maxLines: 6,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 14),
+                  style:
+                      Theme.of(context).textTheme.bodySmall,
                 ),
-                tileColor: Colors.grey.shade500,
+                tileColor: Colors.grey[400],
                 contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
                 selectedTileColor: Colors.amber.shade100,
-                selected: provider.selectionMode
-                    ? provider.isSelected(note.noteId)
+                selected: selectionState.selectionMode
+                    ? selectionState.isSelected(note.noteId)
                     : false,
                 onLongPress: () {
-                  !provider.selectionMode
-                      ? provider.turnOnSelectionMode()
+                  !selectionState.selectionMode
+                      ? selectionState.turnOnSelectionMode()
                       : null;
-                  provider.toggleSelection(note.noteId);
+                  selectionState.toggleSelection(note.noteId);
                 },
                 onTap: () {
-                  if (provider.selectionMode) {
-                    provider.toggleSelection(note.noteId);
+                  if (selectionState.selectionMode) {
+                    selectionState.toggleSelection(note.noteId);
                   } else {
                     widget.onTap(note);
                   }

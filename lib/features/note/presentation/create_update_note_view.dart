@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mynotes/features/user_authentication/bloc/auth_bloc.dart';
 import 'package:mynotes/services/crud/notes_service.dart';
-import 'package:mynotes/utilities/generics/get_arguments.dart';
+import 'package:mynotes/utils/generics/get_arguments.dart';
 
 import 'package:mynotes/services/crud/models/database_note.dart';
 
@@ -14,19 +14,20 @@ class CreateUpdateNoteView extends StatefulWidget {
 }
 
 class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
-  @override
-  void initState() {
-    _notesService = NotesService();
-    _titleTextEditingController = TextEditingController();
-    _noteTextEditingController = TextEditingController();
-    super.initState();
-  }
 
   late final DatabaseNote _note;
   late final NotesService _notesService;
   late final TextEditingController _titleTextEditingController;
   late final TextEditingController _noteTextEditingController;
   late final String title;
+
+  @override
+  void initState() {
+    super.initState();
+    _notesService = NotesService();
+    _titleTextEditingController = TextEditingController();
+    _noteTextEditingController = TextEditingController();
+  }
 
   // Take the content of Controllers then, update the note in NotesService & DB.
   void _titleTextControllerListener() {
@@ -63,7 +64,9 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
     final currentUser = state.user;
     final userId = currentUser.id;
     final owner = await _notesService.getUser(id: userId);
+    debugPrint('got user from database with userID');
     final note = await _notesService.createNote(owner: owner);
+    debugPrint('end of createUpdate function');
     _note = note;
     return _note;
   }
@@ -129,11 +132,12 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
                           fontWeight: FontWeight.bold),
                       controller: _titleTextEditingController,
                       keyboardType: TextInputType.multiline,
-                      maxLines: null,
+                      // maxLines: null,
                       decoration: const InputDecoration(
                         hintText: "Title",
                         hintStyle: TextStyle(fontSize: 25, color: Colors.black),
                         enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
                       ),
                     ),
                   ),
@@ -154,7 +158,7 @@ class _CreateUpdateNoteViewState extends State<CreateUpdateNoteView> {
                 ],
               );
             default:
-              return const CircularProgressIndicator();
+              return const Center(child: CircularProgressIndicator());
           }
         },
       ),

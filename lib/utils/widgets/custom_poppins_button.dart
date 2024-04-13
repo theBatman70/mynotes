@@ -6,13 +6,17 @@ class CustomPoppinsButton extends StatelessWidget {
   final String buttonText;
   final IconData? icon;
   final Color buttonColor;
+  final Color iconColor;
+  final Color buttonTextColor;
 
   const CustomPoppinsButton({
     super.key,
     required this.onPressed,
     required this.buttonText,
     this.icon,
-    this.buttonColor = Colors.amberAccent,
+    this.buttonColor = const Color(0xFF170A1C),
+    this.buttonTextColor = const Color(0xFFFFFFFF),
+    this.iconColor = const Color(0xFFFFFFFF),
   });
 
   @override
@@ -29,15 +33,15 @@ class CustomPoppinsButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (icon != null) ...[
-            Icon(icon, color: Colors.black54),
-            const SizedBox(width: 20),
-          ],
           Text(
             buttonText,
             style: GoogleFonts.poppins(
-                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w500),
+                color: buttonTextColor, fontSize: 18, fontWeight: FontWeight.w500),
           ),
+          const SizedBox(width: 20,),
+          if (icon != null) ...[
+            Icon(icon, color: iconColor),
+          ],
         ],
       ),
     );

@@ -1,28 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../utils/name_helper.dart';
+import '../../../../utils/helper/name_helper.dart';
 import 'app_user.dart';
 
 class EmailAuthUser extends AppUser {
-  String firstName;
-  String? lastName;
-  String? email;
   bool isVerified;
 
   EmailAuthUser(
       {required super.id,
-      required this.email,
-      required this.isVerified,
-      required this.firstName,
-      required this.lastName});
+      required super.firstName,
+      required super.lastName,
+      required super.email,
+      required this.isVerified});
 
-  factory EmailAuthUser.fromFirebase(User firebaseUser) {
+  factory EmailAuthUser.fromFirebase(User user) {
     return EmailAuthUser(
-      id: firebaseUser.uid,
-      email: firebaseUser.email,
-      isVerified: firebaseUser.emailVerified,
-      firstName: extractFirstName(firebaseUser.displayName!),
-      lastName: extractLastName(firebaseUser.displayName!),
+      id: user.uid,
+      isVerified: user.emailVerified,
+      email: user.email,
+      firstName: extractFirstName(user.displayName!),
+      lastName: extractLastName(user.displayName!),
     );
   }
 }

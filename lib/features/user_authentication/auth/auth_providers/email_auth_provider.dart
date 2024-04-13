@@ -5,11 +5,16 @@ import '../auth_exceptions.dart';
 class EmailAuthProvider {
   EmailAuthProvider();
 
-  Future<void> createUserWithEmail(
+  Future<User> createUserWithEmail(
       {required String email, required String password}) async {
     try {
-      await FirebaseAuth.instance
+      final UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
+      if (userCredential.user !=null) {
+        return userCredential.user!;
+      } else {
+        throw UserNullException();
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         throw EmailAlreadyInUseAuthException();

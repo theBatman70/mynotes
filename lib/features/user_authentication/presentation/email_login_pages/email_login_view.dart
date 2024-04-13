@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mynotes/routes/routes.dart';
-import 'package:mynotes/utilities/const/measurements.dart';
-import 'package:mynotes/utilities/widgets/custom_poppins_button.dart';
-import 'package:mynotes/utilities/widgets/dialog_box/show_error_dialog.dart';
+import 'package:mynotes/utils/const/measurements.dart';
+import 'package:mynotes/utils/widgets/custom_poppins_button.dart';
+import 'package:mynotes/utils/widgets/dialog_box/show_error_dialog.dart';
 
 import '../../bloc/auth_bloc.dart';
 
@@ -37,6 +37,12 @@ class _EmailLoginViewState extends State<EmailLoginView> {
         if (state is AuthFailure) {
           showErrorDialog(context, state.message);
         }
+        if (state is EmailNeedsVerification) {
+          Navigator.of(context).pop();
+        }
+        if (state is AuthStateLoggedIn) {
+          Navigator.of(context).pop();
+        }
       },
       child: SafeArea(
         child: Scaffold(
@@ -50,34 +56,33 @@ class _EmailLoginViewState extends State<EmailLoginView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(
-                    left: screenWidth * 0.05,
-                    top: screenWidth * 0.15,
-                  ),
-                  child: IconButton(
-                      iconSize: 30,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.amberAccent,
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 10,
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Log In',
-                      style: GoogleFonts.poppins(
-                        textStyle: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 26),
-                      ),
+                    padding: EdgeInsets.only(
+                      left: screenWidth * 0.05,
+                      top: screenWidth * 0.15,
                     ),
+                    child: const BackButton()),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, left: 50),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.login,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      Text(
+                        'Welcome Back!',
+                        style: GoogleFonts.poppins(
+                          textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 26),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
@@ -116,15 +121,15 @@ class _EmailLoginViewState extends State<EmailLoginView> {
                             // const SizedBox(height: verticalTFSpacing),
                             const SizedBox(height: 50),
                             CustomPoppinsButton(
-                                buttonText: 'Confirm',
+                                buttonText: 'Log In',
                                 onPressed: () async {
-                                    if (formKey.currentState!.validate()) {
-                                      final email = _email.text;
-                                      final password = _password.text;
-                                      context
-                                          .read<AuthBloc>()
-                                          .add(LoginWithEmail(email, password));
-                                    }
+                                  if (formKey.currentState!.validate()) {
+                                    final email = _email.text;
+                                    final password = _password.text;
+                                    context
+                                        .read<AuthBloc>()
+                                        .add(LoginWithEmail(email, password));
+                                  }
                                 }),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -133,7 +138,8 @@ class _EmailLoginViewState extends State<EmailLoginView> {
                                 TextButton(
                                     onPressed: () {
                                       Navigator.of(context)
-                                          .pushReplacementNamed(emailRegisterRoute);
+                                          .pushReplacementNamed(
+                                              emailRegisterRoute);
                                     },
                                     child: const Text(
                                       'Register',

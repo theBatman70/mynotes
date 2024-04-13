@@ -6,6 +6,11 @@ class InvalidEmailAuthException implements Exception {}
 
 class WeakPasswordAuthException implements Exception {}
 
+class UserNullException implements Exception {
+  @override
+  String toString() => 'User created successfully but user is null';
+}
+
 // Login Auth Exceptions
 
 class WrongPasswordAuthException implements Exception {}

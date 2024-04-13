@@ -20,6 +20,15 @@ class AuthStateInitialized extends AuthState {
 class AuthStateLoggedIn extends AuthState {
   final AppUser user;
   const AuthStateLoggedIn(this.user);
+
+  @override
+  String toString() {
+    return 'Email: ${user.email} Name: ${user.firstName} ${user.lastName} id: ${user.id} ';
+  }
+}
+
+class NewUserNeedsIntro extends AuthStateLoggedIn {
+  const NewUserNeedsIntro(super.user);
 }
 
 class AuthStateLoggedOut extends AuthState {
@@ -72,3 +81,5 @@ class AnonUserLoggedIn extends AuthStateLoggedIn {
   final AnonUser anonUser;
   const AnonUserLoggedIn(this.anonUser) : super(anonUser);
 }
+
+

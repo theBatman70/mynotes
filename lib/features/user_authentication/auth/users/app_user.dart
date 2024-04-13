@@ -1,11 +1,14 @@
 
-import 'package:firebase_auth/firebase_auth.dart';
+abstract class AppUser {
+  String? firstName;
+  String? lastName;
+  String? email;
+  String id;
 
-class AppUser {
-  final String id;
-
-  const AppUser({required this.id});
-
-  factory AppUser.fromFirebase(User user) =>
-      AppUser(id : user.uid);
+  AppUser({
+    required this.id,
+    this.firstName,
+    this.lastName,
+    this.email,
+  });
 }

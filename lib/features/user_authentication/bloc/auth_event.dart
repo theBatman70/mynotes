@@ -40,9 +40,17 @@ class CreateEmailUser extends AuthEvent {
       this.email, this.password, this.firstName, this.lastName);
 }
 
+class UpdateName extends AuthEvent {
+  final String name;
+  const UpdateName(this.name);
+}
+
 class SendUserEmailVerification extends AuthEvent {
-  final EmailAuthUser user;
-  const SendUserEmailVerification(this.user);
+  const SendUserEmailVerification();
+}
+
+class CancelEmailVerification extends AuthEvent {
+  const CancelEmailVerification();
 }
 
 class LoginAnonymously extends AuthEventLogin {

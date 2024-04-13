@@ -20,7 +20,7 @@ class SignInPage extends StatelessWidget {
               Padding(
                 padding: EdgeInsetsDirectional.symmetric(
                     vertical: MediaQuery.sizeOf(context).height * 0.15),
-                child: const Column(
+                child: Column(
                   children: [
                     // Header section
                     Row(
@@ -29,13 +29,10 @@ class SignInPage extends StatelessWidget {
                       children: [
                         Text(
                           'Your ideas,',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            // fontStyle: FontStyle.italic
-                          ),
+                          style: Theme.of(context).textTheme.labelMedium,
                           textAlign: TextAlign.center,
                         ),
-                        Image(
+                        const Image(
                           image: AssetImage(
                               'assets/images/my_notes_logo-black-outlined-no_bg.png'), // Replace with your logo image
                           height: 70.0,
@@ -43,24 +40,18 @@ class SignInPage extends StatelessWidget {
                         ),
                         Text(
                           'your plans',
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            // fontStyle: FontStyle.italic
-                          ),
+                          style: Theme.of(context).textTheme.labelMedium,
                           textAlign: TextAlign.center,
                         ),
                       ],
                     ),
-                    SizedBox(height: 20.0),
+                    const SizedBox(height: 20.0),
                     Text(
                       'Your notes.',
-                      style: TextStyle(
-                        fontSize: 22.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.titleSmall,
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 20.0),
+                    const SizedBox(height: 20.0),
                   ],
                 ),
               ),
@@ -70,24 +61,21 @@ class SignInPage extends StatelessWidget {
                 child: Container(
                   margin: EdgeInsetsDirectional.only(
                       bottom: MediaQuery.sizeOf(context).height * 0.1),
-                  width: MediaQuery.sizeOf(context).width * 0.75,
+                  width: 300,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         'Sign in to continue',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.grey[600],
-                        ),
+                        style: Theme.of(context).textTheme.labelSmall,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20.0),
 
                       // Google Sign In
                       Transform.scale(
-                        scale: 0.9,
+                        scale: 0.85,
                         child: IconButton(
                             onPressed: () async {
                               context.read<AuthBloc>().add(const LoginWithGoogle());
@@ -114,11 +102,12 @@ class SignInPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Email/Password',
+                              'Email & Password',
                               style: GoogleFonts.openSans(
                                 textStyle: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 18,
+                                  fontWeight: FontWeight.w500
                                 ),
                               ),
                             ),
